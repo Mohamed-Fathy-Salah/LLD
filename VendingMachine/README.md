@@ -8,6 +8,25 @@
 1. The machine should provide an interface for restocking products and collecting money.
 1. The machine should handle exceptional scenarios, such as insufficient funds or out-of-stock products.
 
+
+```mermaid
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> Open : openMachine
+    Open --> Idle : done
+    Open --> Open : [add,addNew]Product
+    Open --> Open : collectMoney
+    Idle --> AcceptingProducts : start
+    AcceptingProducts --> AcceptingProducts : [add,remove]Product
+    AcceptingProducts --> AcceptingMoney : done
+    AcceptingProducts --> Idle : cancel
+    AcceptingMoney --> AcceptingMoney : insertMoney
+    AcceptingMoney --> ReturningChange : cancel
+    AcceptingMoney --> Dispensing : [insertMoney >= price]
+    Dispensing --> ReturningChange : done
+    ReturningChange --> Idle : done
+```
+
 ```mermaid
 classDiagram
     class Product {
@@ -106,22 +125,4 @@ classDiagram
     AcceptingMoneyState ..> VendingMachineState
     DispensingState ..> VendingMachineState
     ReturningChangeState ..> VendingMachineState
-```
-
-```mermaid
-stateDiagram-v2
-    [*] --> Idle
-    Idle --> Open : openMachine
-    Open --> Idle : done
-    Open --> Open : addProduct
-    Open --> Open : collectMoney
-    Idle --> AcceptingProducts : start
-    AcceptingProducts --> AcceptingProducts : [add,addNew,remove]Product
-    AcceptingProducts --> AcceptingMoney : done
-    AcceptingProducts --> Idle : cancel
-    AcceptingMoney --> AcceptingMoney : insertMoney
-    AcceptingMoney --> Idle : cancel
-    AcceptingMoney --> Dispensing : [insertMoney >= price]
-    Dispensing --> ReturningChange : done
-    ReturningChange --> Idle : done
 ```
