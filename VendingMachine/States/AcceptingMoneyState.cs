@@ -14,7 +14,7 @@ public class AcceptingMoneyState(VendingMachine context) : VendingMachineState(c
 
         Context.PaidAmountInCents += amountInCents;
         if (Context.AmountToBePaidInCents <= Context.PaidAmountInCents)
-            Context.CurrentState = new DispensingState(Context);
+            Context.CurrentState = StateFactory.Get<DispensingState>(Context);
         else
             Console.WriteLine($"remaining amount to be paid is {(Context.AmountToBePaidInCents - Context.PaidAmountInCents) / 100.0}$");
     }
@@ -23,6 +23,6 @@ public class AcceptingMoneyState(VendingMachine context) : VendingMachineState(c
     {
         Context.ProductQuantityInCart.Clear();
         Context.AmountToBePaidInCents = 0;
-        Context.CurrentState = new ReturningChangeState(Context);
+        Context.CurrentState = StateFactory.Get<ReturningChangeState>(Context);
     }
 }

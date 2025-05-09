@@ -5,7 +5,7 @@ public class OpenState(VendingMachine context) : VendingMachineState(context)
     public override string[] AllowedActions => ["Done", "AddProduct", "AddNewProduct", "CollectMoney"];
 
     public override void Done() =>
-        Context.CurrentState = new IdleState(Context);
+        Context.CurrentState = StateFactory.Get<IdleState>(Context);
 
     public override void AddProduct(int productId, int quantity) =>
         Context.Repository.AddProduct(productId, quantity);

@@ -22,7 +22,7 @@ public class AcceptingProductsState(VendingMachine context) : VendingMachineStat
     }
 
     public override void Done() {
-        Context.CurrentState = new AcceptingMoneyState(Context);
+        Context.CurrentState = StateFactory.Get<AcceptingMoneyState>(Context);
         Context.AmountToBePaidInCents = Context.ProductQuantityInCart.Sum(f => Context.Repository.GetPriceInCents(f.Key, f.Value));
         Console.WriteLine($"amount to be paid = {Context.AmountToBePaidInCents/100.0}$");
     }
@@ -32,6 +32,6 @@ public class AcceptingProductsState(VendingMachine context) : VendingMachineStat
         foreach (var (productId, quantity) in Context.ProductQuantityInCart)
             Context.Repository.AddProduct(productId, quantity);
         Context.ProductQuantityInCart.Clear();
-        Context.CurrentState = new IdleState(Context);
+        Context.CurrentState = StateFactory.Get<IdleState>(Context);
     }
 }

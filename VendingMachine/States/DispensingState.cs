@@ -8,6 +8,6 @@ public class DispensingState(VendingMachine context) : VendingMachineState(conte
     {
         Console.WriteLine(string.Join("\n", Context.ProductQuantityInCart.Select(f => $"productid:{f.Key} quantity:{f.Value}")));
         Context.ProductQuantityInCart.Clear();
-        Context.CurrentState = new ReturningChangeState(Context);
+        Context.CurrentState = StateFactory.Get<ReturningChangeState>(Context);
     }
 }

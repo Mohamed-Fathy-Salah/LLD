@@ -10,6 +10,6 @@ public class ReturningChangeState(VendingMachine context) : VendingMachineState(
         Context.AmountInCents += Context.AmountToBePaidInCents;
         Context.PaidAmountInCents = 0;
         Context.AmountToBePaidInCents = 0;
-        Context.CurrentState = new IdleState(Context);
+        Context.CurrentState = StateFactory.Get<IdleState>(Context);
     }
 }

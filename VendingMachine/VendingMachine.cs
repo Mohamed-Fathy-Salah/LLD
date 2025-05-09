@@ -15,7 +15,7 @@ public class VendingMachine : IVendingMachineState
     {
         AmountInCents = amountInCents;
         Repository = new Repository();
-        CurrentState = new IdleState(this);
+        CurrentState = StateFactory.Get<IdleState>(this);
         ProductQuantityInCart = [];
         PaidAmountInCents = 0;
         AmountToBePaidInCents = 0;
