@@ -33,8 +33,7 @@ public class LRUCache<K, V>(int capacity) : ICacheable<K, V>
         }
         finally
         {
-            if (_rwLock.IsReadLockHeld)
-                _rwLock.ExitUpgradeableReadLock();
+            _rwLock.ExitUpgradeableReadLock();
         }
     }
 
