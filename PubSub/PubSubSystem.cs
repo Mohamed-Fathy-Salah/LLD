@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 
 public class PubSubSystem
 {
-    private ConcurrentDictionary<string, HashSet<Subscriber>> topics = new ConcurrentDictionary<string, HashSet<Subscriber>>();
+    private readonly ConcurrentBag
 
     public void publish(string topic, string message)
     {
