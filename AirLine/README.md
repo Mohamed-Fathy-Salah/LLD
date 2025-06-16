@@ -12,62 +12,89 @@
 
 ```mermaid
 classDiagram
-    class AirLine {
-        SearchService searchService
-        BookService bookService
-        ClientRepository clientRepository
-        FlightRepository flightRepository
+    class User {
+        <<abstract>>
+        + string Name
+        + Buggage[] Buggages 
+        + void FlightChanged(Flight)
+    }
+    class Buggage {
+        + int id
+        + string Details
+    }
+    class ISearchService {
+        + Flight[] Search(FlightsFilter)
     }
     class SearchService {
-        Flight[] SearchFlights(FlightFilter)
+        + FlightRepository FlightRepository
     }
-    class BookService {
-        bool BookFlight(Client, seats[], IPayment)
+    class FlightRepository {
+        + Flight[] Flights
+    }
+    class FlightsFilter {
+        + DestinationsEnum Source
+        + DestinationsEnum Destination
+        + DateTime Date
+    }
+    class AirLineSystem {
+        <<singleton>>
+        + ISearchService SearchService
+        + User[] Users
+        + FlightRepository FlightRepository
+        + bool BookFlight(User, Flight, Seat[], IPayment)
+        + bool CancelFlight(User, Flight, IPayment)
+        + void UpdateFlight(Flight, newFrom, newTo, newSource, newDestination)
+    }
+    class Flight {
+        + AirCraft AirCraft
+        + DateTime From
+        + DateTime To
+        + DestinationsEnum Source
+        + DestinationsEnum Destination
+        + decimal PricePerSeat
+        - ConcurrentDictionary~Seat,User~ _bookedSeats
+        + bool Book(User, Seat[])
+        + void NotifyAll()
+        + Seat[] GetEmptySeats()
+        + void Update(newAircraft, newPricePerSeat, newFrom, newTo, newSource, newDestination)
+    }
+    class DestinationsEnum {
+        <<enumeration>>
+    }
+    class AirCraft {
+        + int Id
+        + Seat[] Seats
+    }
+    class Seat {
+        + int Id
     }
     class IPayment {
         <<interface>>
-        bool Pay(Client, Amount)
+        + bool Pay(User, amount)
     }
-    class Client {
-        int id
-        string name
-        string email
-    }
-    class ClientRepository {
-        ConcurrentDict~int,Client~ clients
-        Client CreateClient(name, email)
-        bool RemoveClient(id)
-        bool UpdateClient(id, name, email)
-    }
-    class FlightRepository {
-        ConcurrentDict~int,Flight~ flights
-        Client CreateFlight(airplane, source, destination, date, seats)
-        bool RemoveFlight(id)
-        bool UpdateFlight(id, airplane, source, destination, date, seats)
-    }
-    class AirPlaneRepository {
-        ConcurrentDict~int,AirPlane~ airplanes
-        Client CreateAirPlane()
-        bool RemoveAirPlane(id)
-    }
-    class FlightFilter {
-        string source
-        string destination
-        DateTime date
-    }
-    class AirPlane {
-        int id
-    }
-    class Flight{
-        int id
-        AirPlane airplane
-        string source
-        string destination
-        DateTime date
-        Seat[] seats
-    }
-    class Seat {
-        int id
-        string description
-    }
+    User --> "0..*" Buggage : owns
+    AirLineSystem --> "0..*" User : registers
+    AirLineSystem --> ISearchService : uses
+    AirLineSystem --> FlightRepository : manages
+    AirLineSystem --> Flight : books/makes/cancels/changes
+    AirLineSystem --> IPayment : uses
+
+    SearchService --> FlightRepository : uses
+
+    ISearchService <|.. SearchService : implements
+
+    FlightRepository --> "0..*" Flight : stores
+    Flight --> "0..*" Seat : contains (via AirCraft)
+    Flight --> DestinationsEnum : has source/destination
+    Flight --> "0..*" User : bookedBy (via _bookedSeats)
+
+    AirCraft --> "0..*" Seat : contains
+    Flight --> "0..1" AirCraft : uses
+
+    Flight --> User : notifies
+    User --> Flight : subscribed to (for notification)
+
+    AirLineSystem --> FlightsFilter : uses (in Search)
+
+    IPayment <|.. SomeConcretePaymentClass : implements
 ```
