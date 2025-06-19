@@ -31,16 +31,30 @@
 ## Design
 ```mermaid
 classDiagram
+    class SocialNetwork {
+        <<singleton>>
+        + UsersRepository UsersRepository
+        + AuthService AuthService
+        + ConnectionService ConnectionService
+        + UserService UserService
+        + PostsService PostsService
+    }
+    SocialNetwork --> UsersRepository
+    SocialNetwork --> AuthService
+    SocialNetwork --> ConnectionService
+    SocialNetwork --> UserService
+    SocialNetwork --> PostsService
     class User {
+        + int Id
         + string Name
         + string Email
         + string? ProfilePicture
         + string? Bio
         + string? Interests
-        - string _password
+        - string _hashedPassword
         - bool IsVisible
         + bool IsCorrectPassword(password)
-        + void Notify(string notification)
+        + void Notify(Notification)
     }
     class UsersRepository {
         - ConcurrentDictionary~string,User~ _users  -> string is email
@@ -48,12 +62,10 @@ classDiagram
         + void RemoveUser(string email)
         + User? GetUserByEmail(string email)
     }
-    class INotify {
-        + void Notify(string notification)
-    }
+    UsersRepository "1" -- "*" User
     class AuthService {
         - UsersRepository _repo
-        - ConcurrentDictionary~User,string~ _authedUsers -> string is token
+        - ConcurrentDictionary~int,string~ _authedUsers -> int is userid, string is token
         + Guid? SignUp (string name, string email, string password)
         + Guid? SignIn (string email, string password)
         + void SignOut (string email)
@@ -65,50 +77,74 @@ classDiagram
         + bool UpdateUserProfile(Guid token, profilePicture?, bio?, interests?)
         + void UpdateUserVisiblity(Guid token, bool)
         + User[] SearchUsers(string emailPrefix)
+        + void NotifyUser(int userId, Notification)
     }
     class ConnectionService {
-        - User[] Friends -- todo
-        - ConcurrentDictionary~int,FriendRequest~ Requests -- todo
         - UsersRepository _repo 
         - AuthService _auth 
+        - ConcurrentDictionary~int,FriendRequest~ Requests
         + bool SendFriendRequest(Guid token, string friendEmail)
         + bool AcceptFriendRequest(Guid token, int requestId)
         + bool DeclienFriendRequest(Guid token, int requestId)
+        + User[] GetFriends(Guid token)
+        + FriendRequest[] GetFriendRequests(Guid token)
     }
+    ConnectionService "1" -- "*" FriendRequest
     class PostsService {
-        - post[] posts --todo
-        - UsersRepository _repo
+        - ConnectionService _connection
         - AuthService _auth
+        - ConcurrentDictionary~int,post~ posts
         + Post[] GetPosts(Guid token) --> order by created time desc
         + Post CreatePost(Guid token, string? text, string[] imagesUrl, string[] videosUrl) --> handle mentions
         + bool AddLike(Guid token, int postId)
         + bool RemoveLike(Guid token, int postId)
         + bool AddComment(Guid token, int postId) --> handle mentions
     }
+    PostsService "1" -- "*" Post
     class FriendRequest {
         + int Id
-        + User From
-        + User To
+        + int FromUserId
+        + int ToUserId
+        + FriendRequestStatusEnum Status
         + DateTime CreatedAt
     }
     class Post {
         + int Id
-        + User Owner
+        + int OwnerId
         + string? Text
         + string[] ImagesUrl
         + string[] VideosUrl
         + Comment[] Comments
+        + DateTime CreatedAt
         + Like[] Likes
     }
+    class FriendRequestStatus {
+        <<enumeration>>
+        Pending
+        Accepted
+        Rejected
+    }
     class Comment {
-        + int Id
-        + User Owner
+        + int OwnerId
         + string text
         + DateTime CreatedAt
     }
     class Like {
-        + int Id
-        + User Owner
+        + int OwnerId
         + DateTime CreatedAt
+    }
+    Post "1" -- "*" Comment
+    Post "1" -- "*" Like
+    class Notification {
+        + string message
+        + NotificationTypeEnum type
+        + DateTime CreatedAt
+    }
+    class NotificationTypeEnum {
+        FRIEND_REQUEST
+        FRIEND_REQUEST_ACCEPTED
+        LIKE
+        COMMENT
+        MENTION
     }
 ```
