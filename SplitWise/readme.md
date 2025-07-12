@@ -30,7 +30,7 @@ classDiagram
         + Expense[] expenses
         + Dictionary~IGroupObserver,(decimal paid, decimal owes)~ participantsPaymentDetails
         + void AddParticipant(IGroupObserver)
-        + void AddExpense(description, payer, amount, Dictionary~IGroupObserver,decimal~ userShares, SplitStrategy)
+        + void AddExpense(description, payer, amount, Dictionary~IGroupObserver,decimal~ userShares, SplitStrategyEnum)
         + void Settle(IGroupObserver, Expense)
     }
     class Expense {
@@ -40,6 +40,19 @@ classDiagram
         + Dictionary~IGroupObserver,decimal~ userShareAmounts
         + SplitStrategy split
         + DateTime CreatedAt
+    }
+    class SplitStrategyEnum {
+        <<enumeration>>
+        EQUAL
+        PERCENTAGE
+        AMOUNT
+    }
+    class SplitStrategyFactory {
+        <<singleton>>
+        - Lazy<EqualSplit> equalSplit
+        - Lazy<PercentageSplit> percentageSplit
+        - Lazy<ExactAmountSplit> exactAmountSplit
+        + SplitStrategy GetSplitStrategy(SplitStrategyEnum)
     }
     class SplitStrategy {
         <<abstract>>
