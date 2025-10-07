@@ -1,80 +1,80 @@
 ```mermaid
 classDiagram
-    class Plan {
-        + RepaymentScheduleEnum repaymentSchedule -- inarrear,inadvance
-        + int contractId
-        + Company[] companies
-        + InstallmentGroupSpecs[] installmentGroupsSpecs
+    class CalculationSheet {
         + Action[] actions
-        + Run(Action action)
+        + int contractId
+        + ContractStatusEnum status terminated,securitized,booked,init
+        + PaymentTypeEnum paymentType inarrear,inadvance
     }
-    Plan -- "*" Action
-    Plan -- "*" Company
-    Plan -- "*" InstallmentGroupSpecs
-    Company --> CompanySpecs
-    Action -- "*" Installment
-    Installment -- "*" ClubInstallment
-    Installment --> InstallmentSpecs
-    ClubInstallment --> InstallmentSpecs
+    CalculationSheet -- "*" Action
     class Action {
         <<abstract>>
-        + DateTime date
         + Installment[] installments
-        + Run(plan)*
+        + InstallmentGroupSpecs[] installmentGroupSpecs
+        + Company[] companies
+        + Run()
     }
-    class Initiation {
-        + Run(plan)
-    }
-    class Corridor {
-        + Run(plan)
-    }
-    class Sofr {
-        + Run(plan)
-    }
-    class Termination {
-        + Run(plan)
-    }
-    class Securitization {
-        + Run(plan)
-    }
-    Action <.. Initiation
-    Action <.. Corridor
-    Action <.. Sofr
-    Action <.. Termination
-    Action <.. Securitization
-    class InstallmentSpecs {
-        + int period
-        + decimal principal
-        + decimal interestRate
-        + decimal interestAmount
-        + decimal rent
-        + decimal stepPercent
-        + DateTime date
-        + GracePeriodEnum gracePeriod
-    }
-    class CompanySpecs {
-        + decimal shareAmount
-        + decimal sharePercentage
-    }
-    class InstallmentGroupSpecs {
+    Action .. Securitization
+    Action .. Termination
+    Action .. Initiation
+    Action .. Corridor
+    Action .. Sofr
+    Action .. Euribor
+    Action -- "*" Company
+    Action -- "*" Installment
+    Action -- "*" InstallmentGroupSpecs
+    class InstallmentGroupSpecs{
+        + decimal margin
         + int numberOfInstallments
-        + GracePeriodEnum gracePeriod
-        + decimal stepPercent
-        + decimal interestRate
-    }
-    class Installment {
-        + ClubInstallment[] clubInstallments
-        + InstallmentSpecs specs
-        + void Calculate()
-    }
-    class ClubInstallment {
-        + InstallmentSpecs specs
-        + int companyId
-        + void Calculate()
+        + int[] servingInterestPeriods 
+        + int[] fullCapitalizationPeriods 
+        + Dictionary~int,decimal~ periodsStepPercentage
+        + RepaymentStructureEnum repaymentStructure monthly,quartarly,...
     }
     class Company {
-        + CompanySpecs specs
         + int companyId
+        + decimal shareAmount
+        + decimal sharePercentage
+        + bool isMainCollector
+        + bool shouldCreateJournals
+        + int[] includedPeriods
+    }
+    class Installment {
+        + int period
+        + decimal opening
+        + decimal principalAmount
+        + decimal interestAmount
+        + decimal rent
+        + decimal closing
+        + DateOnly date
+        + decimal interestRate
+        + InstallmentDetail[] installmentDetails
+        + Accrual[] accruals
+        + Break(Action)
+    }
+    Installment -- "*" InstallmentDetail
+    class InstallmentDetail {
+        + int period
+        + decimal opening
+        + decimal principalAmount
+        + decimal interestAmount
+        + decimal rent
+        + decimal closing
+        + DateOnly date
+        + decimal interestRate
+        + Accrual[] accruals
+        + Break(Action)
+    }
+    Installment -- "*" Accrual
+    InstallmentDetail -- "*" Accrual
+    class Accrual {
+        + int period
+        + decimal opening
+        + decimal principalAmount
+        + decimal interestAmount
+        + decimal revenue
+        + decimal closing
+        + DateOnly date
     }
 ```
 
