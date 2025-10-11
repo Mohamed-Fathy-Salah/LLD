@@ -1,15 +1,18 @@
 namespace InstallmentPlanner.Models;
 
-public class Installment(int period, decimal opening, decimal principalAmount, decimal interestAmount, decimal rent, decimal closing, DateOnly date, decimal interestRate, InstallmentDetail[] installmentDetails, Accrual[] accruals)
+public class Installment(int period, DateOnly date, int numberOfDays, decimal interestRate)
 {
     public int Period { get; } = period;
-    public decimal Opening { get; } = opening;
-    public decimal PrincipalAmount { get; } = principalAmount;
-    public decimal InterestAmount { get; } = interestAmount;
-    public decimal Rent { get; } = rent;
-    public decimal Closing { get; } = closing;
+    public decimal Opening { get; set; }
+    public decimal PrincipalAmount { get; set; }
+    public decimal InterestAmount { get; set; }
+    public decimal Rent { get; set; }
+    public decimal Closing { get; set; }
     public DateOnly Date { get; } = date;
+    public int NumberOfDays { get; } = numberOfDays;
     public decimal InterestRate { get; } = interestRate;
-    public InstallmentDetail[] InstallmentDetails { get; } = installmentDetails;
-    public Accrual[] Accruals { get; } = accruals;
+    public List<InstallmentDetail> InstallmentDetails { get; set; } = default!;
+    public List<Accrual> Accruals { get; set; } = default!;
+
+    public override string ToString() => $"{Period} {Opening} {Date} {NumberOfDays} {Rent} {PrincipalAmount} {InterestAmount} {Closing} {InterestRate}";
 }

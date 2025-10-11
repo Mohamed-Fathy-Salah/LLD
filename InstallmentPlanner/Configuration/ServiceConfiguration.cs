@@ -11,7 +11,7 @@ public static class ServiceConfiguration
     public static IServiceCollection AddInstallmentPlannerServices(this IServiceCollection services)
     {
         // Register Unit of Work
-        services.AddScoped<IUnitOfWork, InMemoryUnitOfWork>();
+        services.AddScoped<IUnitOfWork, UnitOfWork.UnitOfWork>();
 
         // Register strategies
         services.AddScoped<InitiationAction>();
