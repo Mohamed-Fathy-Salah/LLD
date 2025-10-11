@@ -1,28 +1,30 @@
 ```mermaid
 classDiagram
+    class Controller {
+        + ActionFactory actionFactory
+        + Action Initiate(InitiationDto)
+        + Action Corridor(CorridorDto)
+        + Action Sofr(SofrDto)
+        + Action Euribor(EuriborDto)
+        + Action Termination(TerminationDto)
+        + Action Securitization(SecuritizationDto)
+    }
+    class BaseActionDto {
+        <<abstract>>
+        int contractId
+    }
     class CalculationSheet {
         + Action[] actions
         + int contractId
         + ContractStatusEnum status terminated,securitized,booked,init
         + PaymentTypeEnum paymentType inarrear,inadvance
     }
-    CalculationSheet -- "*" Action
     class Action {
-        <<abstract>>
         + Installment[] installments
         + InstallmentGroupSpecs[] installmentGroupSpecs
         + Company[] companies
-        + Run()
+        + DateTime CreatedAt
     }
-    Action .. Securitization
-    Action .. Termination
-    Action .. Initiation
-    Action .. Corridor
-    Action .. Sofr
-    Action .. Euribor
-    Action -- "*" Company
-    Action -- "*" Installment
-    Action -- "*" InstallmentGroupSpecs
     class InstallmentGroupSpecs{
         + decimal margin
         + int numberOfInstallments
@@ -50,9 +52,7 @@ classDiagram
         + decimal interestRate
         + InstallmentDetail[] installmentDetails
         + Accrual[] accruals
-        + Break(Action)
     }
-    Installment -- "*" InstallmentDetail
     class InstallmentDetail {
         + int period
         + decimal opening
@@ -63,10 +63,7 @@ classDiagram
         + DateOnly date
         + decimal interestRate
         + Accrual[] accruals
-        + Break(Action)
     }
-    Installment -- "*" Accrual
-    InstallmentDetail -- "*" Accrual
     class Accrual {
         + int period
         + decimal opening
@@ -76,5 +73,38 @@ classDiagram
         + decimal closing
         + DateOnly date
     }
+    class IActionStrategy {
+        <<interface>>
+        + ActionTypeEnum type
+        + Action Run(BaseActionDto)
+        + Action Rollback(BaseActionDto)
+    }
+    class ActionFactory {
+        + Action Run~T~(T) T is BaseActionDto
+        + Action Rollback~T~(T) T is BaseActionDto
+    }
+    Controller .. ActionFactory
+    BaseActionDto <.. InitiationDto 
+    BaseActionDto <.. CorridorDto 
+    CorridorDto <.. SofrDto 
+    CorridorDto <.. EuriborDto 
+    BaseActionDto <.. TerminationDto 
+    BaseActionDto <.. SecuritizationDto 
+    SecuritizationDto <.. OffloadingDto 
+    CalculationSheet -- "*" Action
+    ActionStrategy .. BaseActionDto
+    ActionStrategy <.. OffloadingAction
+    ActionStrategy <.. SecuritizationAction
+    ActionStrategy <.. TerminationAction
+    ActionStrategy <.. InitiationAction
+    ActionStrategy <.. CorridorAction
+    ActionStrategy <.. SofrAction
+    ActionStrategy <.. EuriborAction
+    Action -- "*" Company
+    Action -- "*" Installment
+    Action -- "*" InstallmentGroupSpecs
+    Installment -- "*" Accrual
+    InstallmentDetail -- "*" Accrual
+    Installment -- "*" InstallmentDetail
 ```
 
